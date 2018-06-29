@@ -2,15 +2,19 @@ package users
 
 import "gopkg.in/mgo.v2/bson"
 
+type Gym struct {
+	ID   bson.ObjectId `json:"id" bson:"_id"`
+	Name string        `json:"name" bson:"name"`
+}
+
 type User struct {
-	ID          bson.ObjectId `json:"id" bson:"_id"`
-	Name        string        `json:"name" bson:"name"`
-	Lastname    string        `json:"lastname" bson:"lastname"`
-	Email       string        `json:"email" bson:"email"`
-	AccessToken string        `json:"access_token" bson:"access_token"`
-	GymID       int           `json:"gym_id" bson:"gym_id"`
+	ID    bson.ObjectId `json:"id" bson:"_id"`
+	Name  string        `json:"name" bson:"name"`
+	Email string        `json:"email" bson:"email"`
+	Gym   *Gym          `json:"gym" bson:"gym"`
 }
 
 type UserSrv interface {
-	CreateUser(name, lastname, email string) (string, error)
+	IsExistingUser(email string) (bool, error)
+	SignUp(name, email, gymName string) (string, error)
 }

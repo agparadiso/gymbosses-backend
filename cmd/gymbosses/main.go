@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/agparadiso/gymbosses/backend/pkg/authentication"
+
 	mgo "gopkg.in/mgo.v2"
 
 	"github.com/agparadiso/gymbosses/backend/pkg/server"
@@ -12,7 +14,8 @@ import (
 
 func main() {
 	userSrv := mongoDB.NewUsersSrv(getSession())
-	log.Fatal(http.ListenAndServe(":8080", server.NewServer(userSrv)))
+	oauthSrv := authentication.NewOauthSrv()
+	log.Fatal(http.ListenAndServe(":8080", server.NewServer(userSrv, oauthSrv)))
 }
 
 func getSession() *mgo.Session {

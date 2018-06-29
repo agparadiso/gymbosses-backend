@@ -25,20 +25,40 @@ func NewUsersSrv(s *mgo.Session) *UserSrv {
 	}
 }
 
-func (srv *UserSrv) CreateUser(name, lastname, email string) (string, error) {
+func (srv *UserSrv) IsExistingUser(email string) (bool, error) {
+	c := srv.session.DB(dbname).C(usersTable)
+	query := bson.M{"email": email}
 	user := &users.User{}
+	err := c.Find(query).One(&user)
+	if err != nil {
+		return false, err
+	}
+
+	if user != nil && user.Email == email {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (srv *UserSrv) SignUp(name, email string, gymName string) (string, error) {
+	user := &users.User{}
+	gym := &users.Gym{}
+
+	gym.ID = bson.NewObjectId()
+	gym.Name = gymName
 
 	// Add an Id
 	user.ID = bson.NewObjectId()
 	user.Name = name
-	user.Lastname = lastname
 	user.Email = email
+	user.Gym = gym
 
-	// Write the food to mongo
+	// Write the user to mongo
 	err := srv.session.DB(dbname).C(usersTable).Insert(user)
 	if err != nil {
 		return "", errors.Wrap(err, "Failed to store user in mongoDB")
 	}
 
-	return fmt.Sprintf("user %s %s with email %s created in mongoDB", name, lastname, email), nil
+	return fmt.Sprintf("user %s with email %s created in mongoDB", name, email), nil
 }
