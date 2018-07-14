@@ -6,6 +6,7 @@ import (
 
 	"github.com/agparadiso/gymbosses/backend/pkg/authentication"
 	"github.com/agparadiso/gymbosses/backend/pkg/users"
+	"github.com/rs/cors"
 
 	"github.com/gorilla/mux"
 )
@@ -19,10 +20,10 @@ func NewServer(userSrv users.UserSrv, oauthSrv *authentication.OauthSrv) http.Ha
 	fmt.Println("Running gymbosses server...")
 	s := &Server{userSrv: userSrv, oauthSrv: *oauthSrv}
 	r := mux.NewRouter()
-	r.HandleFunc("/", s.login).Methods("GET")
+	r.HandleFunc("/", s.login)
 	r.HandleFunc("/callback", s.oauthCallback)
-
-	return r
+	handler := cors.Default().Handler(r)
+	return handler
 }
 
 func (s *Server) oauthCallback(w http.ResponseWriter, r *http.Request) {
@@ -33,28 +34,10 @@ func (s *Server) oauthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exists, err := s.userSrv.IsExistingUser(userInfo.Email)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	//pending decide either to store or not the user
+	_, _ = s.userSrv.IsExistingUser(userInfo.Email)
 
-	if !exists {
-		resp, err := s.userSrv.SignUp(userInfo.Name, userInfo.Email, "sanBorja")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(resp))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ya existia"))
-
+	http.Redirect(w, r, "http://localhost:8080", http.StatusTemporaryRedirect)
 }
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {

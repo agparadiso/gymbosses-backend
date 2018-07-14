@@ -15,7 +15,7 @@ import (
 func main() {
 	userSrv := mongoDB.NewUsersSrv(getSession())
 	oauthSrv := authentication.NewOauthSrv()
-	log.Fatal(http.ListenAndServe(":8080", server.NewServer(userSrv, oauthSrv)))
+	log.Fatal(http.ListenAndServe(":3000", server.NewServer(userSrv, oauthSrv)))
 }
 
 func getSession() *mgo.Session {

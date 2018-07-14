@@ -17,7 +17,7 @@ import (
 
 var (
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:8080/callback",
+		RedirectURL:  "http://localhost:3000/callback",
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
@@ -73,7 +73,9 @@ func (oauth *OauthSrv) OauthCallback(w http.ResponseWriter, r *http.Request) (*O
 
 func (oauth *OauthSrv) LoginGoogleProvider(w http.ResponseWriter, r *http.Request) {
 	url := googleOauthConfig.AuthCodeURL(randomState)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	url = fmt.Sprintf("{\"url\": \"%s\"}", url)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(url))
 }
 
 func randomString(n int) string {
