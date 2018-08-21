@@ -8,14 +8,16 @@ import (
 
 	mgo "gopkg.in/mgo.v2"
 
+	clients "github.com/agparadiso/gymbosses/backend/pkg/clients/mock"
 	"github.com/agparadiso/gymbosses/backend/pkg/server"
-	"github.com/agparadiso/gymbosses/backend/pkg/users/mongoDB"
+	users "github.com/agparadiso/gymbosses/backend/pkg/users/mongoDB"
 )
 
 func main() {
-	userSrv := mongoDB.NewUsersSrv(getSession())
+	userSrv := users.NewUsersSrv(getSession())
 	oauthSrv := authentication.NewOauthSrv()
-	log.Fatal(http.ListenAndServe(":3000", server.NewServer(userSrv, oauthSrv)))
+	clientsSrv := clients.NewClientsSrv()
+	log.Fatal(http.ListenAndServe(":3000", server.NewServer(userSrv, oauthSrv, clientsSrv)))
 }
 
 func getSession() *mgo.Session {
