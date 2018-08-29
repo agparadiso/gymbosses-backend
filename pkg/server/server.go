@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/agparadiso/gymbosses/backend/pkg/authentication"
@@ -26,6 +27,7 @@ func NewServer(userSrv users.UserSrv, oauthSrv *authentication.OauthSrv, clients
 	r.HandleFunc(`/`, s.login)
 	r.HandleFunc(`/callback`, s.oauthCallback)
 	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/checkin-history`, s.checkinHistory)
+	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/client/new`, s.newClient)
 	handler := cors.Default().Handler(r)
 	return handler
 }
@@ -54,4 +56,24 @@ func (s *Server) checkinHistory(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, _ := json.Marshal(ckh)
 	w.Write(body)
+}
+
+func (s *Server) newClient(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Printf(err.Error())
+		return
+	}
+
+	cli := clients.Client{}
+	err = json.Unmarshal(body, &cli)
+	if err != nil {
+		fmt.Printf(err.Error())
+		return
+	}
+	err = s.clientSrv.NewClient(&cli)
+	if err != nil {
+		fmt.Printf(err.Error())
+		return
+	}
 }
