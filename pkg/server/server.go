@@ -27,7 +27,8 @@ func NewServer(userSrv users.UserSrv, oauthSrv *authentication.OauthSrv, clients
 	r.HandleFunc(`/`, s.login)
 	r.HandleFunc(`/callback`, s.oauthCallback)
 	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/checkin-history`, s.checkinHistory)
-	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/client/new`, s.newClient)
+	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/clients`, s.clients)
+	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/clients/new`, s.newClient)
 	handler := cors.Default().Handler(r)
 	return handler
 }
@@ -55,6 +56,15 @@ func (s *Server) checkinHistory(w http.ResponseWriter, r *http.Request) {
 	ckh = s.clientSrv.CheckinHistory()
 	w.Header().Set("Content-Type", "application/json")
 	body, _ := json.Marshal(ckh)
+	w.Write(body)
+}
+
+func (s *Server) clients(w http.ResponseWriter, r *http.Request) {
+	cliName := r.URL.Query().Get("name")
+	var cli *clients.SearchClientResponse
+	cli = s.clientSrv.SearchClients(cliName)
+	w.Header().Set("Content-Type", "application/json")
+	body, _ := json.Marshal(cli)
 	w.Write(body)
 }
 
