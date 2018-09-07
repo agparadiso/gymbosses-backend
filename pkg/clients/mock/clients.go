@@ -12,6 +12,13 @@ type ClientsSrv struct{}
 func NewClientsSrv() *ClientsSrv {
 	return &ClientsSrv{}
 }
+func (c *ClientsSrv) SearchClientByID(id string) *clients.Client {
+	data := []byte(`{"client_id": 5932, "name": "Karen", "profile_pic": "Forma%20Centro/profile_pic/20170816_082132.jpg", "state": 1, "last_name": "Martinez"}`)
+	cli := clients.Client{}
+	json.Unmarshal(data, &cli)
+	return &cli
+}
+
 func (c *ClientsSrv) SearchClients(name string) *clients.SearchClientResponse {
 	data := []byte(`{"clients": [{"client_id": 9955, "name": "Christian", "state": 1, "last_name": "Ledo"}, {"client_id": 8936, "name": "Juanfranco", "state": 0, "last_name": "Lima"}, {"client_id": 9738, "name": "Marcelo", "state": 1, "last_name": "Kurlander"}, {"client_id": 10296, "name": "Ezequiel", "state": 1, "last_name": "Regueira"}, {"client_id": 10279, "name": "Nicolas", "state": 0, "last_name": "Figueroa"}, {"client_id": 5932, "name": "Karen", "state": 1, "last_name": "Bertucci"}]}`)
 	if name == "karen" {

@@ -3,6 +3,7 @@ package clients
 type ClientsSrv interface {
 	NewClient(*Client) error
 	CheckinHistory() *CheckinHistoryResponse
+	SearchClientByID(id string) *Client
 	SearchClients(name string) *SearchClientResponse
 }
 

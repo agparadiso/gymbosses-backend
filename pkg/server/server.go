@@ -29,6 +29,7 @@ func NewServer(userSrv users.UserSrv, oauthSrv *authentication.OauthSrv, clients
 	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/checkin-history`, s.checkinHistory)
 	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/clients`, s.clients)
 	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/clients/new`, s.newClient)
+	r.HandleFunc(`/{gymname:[a-zA-Z0-9=\-\/]+}/clients/{client_id:[0-9=\-\/]+}`, s.client)
 	handler := cors.Default().Handler(r)
 	return handler
 }
@@ -40,11 +41,10 @@ func (s *Server) oauthCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-
 	//pending decide either to store or not the user
 	_, _ = s.userSrv.IsExistingUser(userInfo.Email)
 
-	http.Redirect(w, r, "http://localhost:8080/someGym/dashboard", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "http://localhost:8080/someGym/dashboard/", http.StatusTemporaryRedirect)
 }
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
@@ -63,6 +63,15 @@ func (s *Server) clients(w http.ResponseWriter, r *http.Request) {
 	cliName := r.URL.Query().Get("name")
 	var cli *clients.SearchClientResponse
 	cli = s.clientSrv.SearchClients(cliName)
+	w.Header().Set("Content-Type", "application/json")
+	body, _ := json.Marshal(cli)
+	w.Write(body)
+}
+
+func (s *Server) client(w http.ResponseWriter, r *http.Request) {
+	var cli *clients.Client
+	vars := mux.Vars(r)
+	cli = s.clientSrv.SearchClientByID(vars["client_id"])
 	w.Header().Set("Content-Type", "application/json")
 	body, _ := json.Marshal(cli)
 	w.Write(body)
