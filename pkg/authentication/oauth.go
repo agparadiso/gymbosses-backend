@@ -16,18 +16,12 @@ import (
 )
 
 var (
-	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:3000/callback",
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-		Endpoint:     google.Endpoint,
-	}
-
 	randomState = randomString(15)
 )
 
-type OauthSrv struct{}
+type OauthSrv struct {
+	googleOauthConfig *oauth2.Config
+}
 
 type OauthResponse struct {
 	Sub           string `json:"sub"`
@@ -38,7 +32,15 @@ type OauthResponse struct {
 }
 
 func NewOauthSrv() *OauthSrv {
-	return &OauthSrv{}
+	oauthConfig := &oauth2.Config{
+		RedirectURL:  "http://localhost:3000/callback",
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
+		Endpoint:     google.Endpoint,
+	}
+
+	return &OauthSrv{googleOauthConfig: oauthConfig}
 }
 
 func (oauth *OauthSrv) OauthCallback(w http.ResponseWriter, r *http.Request) (*OauthResponse, error) {
@@ -46,7 +48,7 @@ func (oauth *OauthSrv) OauthCallback(w http.ResponseWriter, r *http.Request) (*O
 		return nil, fmt.Errorf("state is not valid")
 	}
 
-	token, err := googleOauthConfig.Exchange(oauth2.NoContext, r.FormValue("code"))
+	token, err := oauth.googleOauthConfig.Exchange(oauth2.NoContext, r.FormValue("code"))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get token")
 	}
@@ -72,7 +74,7 @@ func (oauth *OauthSrv) OauthCallback(w http.ResponseWriter, r *http.Request) (*O
 }
 
 func (oauth *OauthSrv) LoginGoogleProvider(w http.ResponseWriter, r *http.Request) {
-	url := googleOauthConfig.AuthCodeURL(randomState)
+	url := oauth.googleOauthConfig.AuthCodeURL(randomState)
 	url = fmt.Sprintf("{\"url\": \"%s\"}", url)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(url))
