@@ -52,8 +52,9 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) checkinHistory(w http.ResponseWriter, r *http.Request) {
+	cliID := r.URL.Query().Get("id")
 	var ckh *clients.CheckinHistoryResponse
-	ckh = s.clientSrv.CheckinHistory()
+	ckh = s.clientSrv.CheckinHistory(cliID)
 	w.Header().Set("Content-Type", "application/json")
 	body, _ := json.Marshal(ckh)
 	w.Write(body)

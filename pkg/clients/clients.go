@@ -2,7 +2,7 @@ package clients
 
 type ClientsSrv interface {
 	NewClient(*Client) error
-	CheckinHistory() *CheckinHistoryResponse
+	CheckinHistory(id string) *CheckinHistoryResponse
 	SearchClientByID(id string) *Client
 	SearchClients(name string) *SearchClientResponse
 }
@@ -19,6 +19,8 @@ type Client struct {
 	Diseases         string `json:"diseases"`
 	ProfilePic       string `json:"profile_pic"`
 	MeetUs           string `json:"meet_us"`
+	MedicalInsurance string `json:"medical_insurance"`
+	MedicalEmergency string `json:"medical_emergency"`
 	State            int    `json:"state"`
 }
 
