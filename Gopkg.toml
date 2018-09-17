@@ -50,6 +50,5 @@
   unused-packages = true
 
 [metadata.heroku]
-  root-package = "github.com/agparadiso/gymbosses"
-  go-version = "1.8.3"
-  install = [ "./..." ]
+  root-package = "gymbosses"
+  install = ["./..."]

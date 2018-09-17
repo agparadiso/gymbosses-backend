@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/agparadiso/gymbosses/backend/pkg/authentication"
 
@@ -15,5 +16,5 @@ func main() {
 	userSrv := users.NewUsersSrv()
 	oauthSrv := authentication.NewOauthSrv()
 	clientsSrv := clients.NewClientsSrv()
-	log.Fatal(http.ListenAndServe(":3000", server.NewServer(userSrv, oauthSrv, clientsSrv)))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), server.NewServer(userSrv, oauthSrv, clientsSrv)))
 }
